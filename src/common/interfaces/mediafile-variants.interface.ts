@@ -14,8 +14,6 @@ export interface MediaFileVariantsInterface {
 export interface MediaFileInterface {
   id: string;
   name: string;
-  keyName?: string;
-  physicalPath?: string;
   mimeType?: string;
   size?: number;
   extension: string;

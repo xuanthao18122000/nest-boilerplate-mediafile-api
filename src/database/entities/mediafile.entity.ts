@@ -18,18 +18,6 @@ export class Mediafile {
   name: string;
 
   @Column({
-    name: "key_name",
-    nullable: true,
-  })
-  keyName: string;
-
-  @Column({
-    name: "physical_path",
-    nullable: true,
-  })
-  physicalPath: string;
-
-  @Column({
     nullable: true,
     name: "mime_type",
   })

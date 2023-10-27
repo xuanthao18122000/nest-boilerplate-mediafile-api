@@ -1,7 +1,7 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Body, Get, ParseFilePipeBuilder } from "@nestjs/common";
+import { Controller, Post, UseInterceptors, UploadedFile, Body, Get, ParseFilePipeBuilder, UploadedFiles } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { MediaFilesService } from "./file.service";
-import { FileInterceptor } from "@nestjs/platform-express";
+import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { MediaFileInterface } from "src/common/interfaces/mediafile-variants.interface";
 import { getEnv } from "src/config/env.config";
 
@@ -55,5 +55,51 @@ export class MediaFilesController {
     } catch (error) {
       throw error;
     }
+  }
+
+  @Post("uploads")
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        files: {
+          type: "array",
+          items: { type: "string", format: "binary" },
+          description: "Array of files to be uploaded",
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FilesInterceptor("files", 20),
+  )
+  async uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
+    const uploadedFiles = [];
+
+    for (const file of files) {
+      let input: MediaFileInterface = this.mediaFilesService.buildMediafile(file);
+
+      if (input.mimeType.includes("image")) {
+        input.variants = this.mediaFilesService.buildImageVariants();
+      }
+
+      try {
+        input = await this.mediaFilesService.buildUpload(input, file);
+        await this.mediaFilesService.saveToDatabase(input);
+
+        const fileLink = `${getEnv("FILE_CDN_URL")}/${input.id}.${input.extension}`;
+        console.log(`🚀 File uploaded successfully: ${fileLink} 🚀`);
+        uploadedFiles.push({
+          link: fileLink,
+          fileUpload: `${input.id}.${input.extension}`,
+          ...input,
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    return uploadedFiles;
   }
 }
