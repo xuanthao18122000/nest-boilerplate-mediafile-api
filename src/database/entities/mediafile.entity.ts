@@ -70,4 +70,18 @@ export class Mediafile {
     onUpdate: "CURRENT_TIMESTAMP",
   })
   updatedAt: Date;
+
+  static enum = {
+    STATUS: {
+      ACTIVE: 1,
+      INACTIVE: -1,
+    },
+    TYPE: {
+      GLOBAL: 1,
+    },
+    SIZES: {
+      THUMP: 240,
+      RESOLUTIONS: [1080, 720, 480, 360, 240, 128, "thumbnail"],
+    },
+  };
 }

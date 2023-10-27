@@ -3,7 +3,6 @@ import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Mediafile } from "src/database/entities";
 import * as mimeTypes from "mime-types";
-import { MediafileEnum } from "src/common/constants/user.constant";
 import * as AWS from "aws-sdk";
 import * as Minio from "minio";
 import * as crypto from "crypto";
@@ -35,8 +34,8 @@ export class MediaFilesService {
 			mimeType: file.mimetype,
 			extension,
 			size: file.size,
-			status: MediafileEnum.STATUS.ACTIVE,
-			type: MediafileEnum.TYPE.GLOBAL,
+			status: Mediafile.enum.STATUS.ACTIVE,
+			type: Mediafile.enum.TYPE.GLOBAL,
 		};
 		return result;
 	}
@@ -136,7 +135,7 @@ export class MediaFilesService {
         if (variant === "thumbnail") {
           variantBuffer = await this.resizeImage(
             file.buffer,
-            [MediafileEnum.SIZES.THUMP, MediafileEnum.SIZES.THUMP],
+            [Mediafile.enum.SIZES.THUMP, Mediafile.enum.SIZES.THUMP],
             true
           );
         } else {
@@ -178,7 +177,7 @@ export class MediaFilesService {
 	buildImageVariants() {
 		const result: { [key: string]: { id: string } } = {};
 
-		for (const size of MediafileEnum.SIZES.RESOLUTIONS) {
+		for (const size of Mediafile.enum.SIZES.RESOLUTIONS) {
 			const id = crypto.randomUUID();
 			result[size] = { id };
 		}
